@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+            margin: 0;
+        }
+        img {
+            width: 50vw;
+            height: auto;
+            cursor: pointer;
+        }
+        #input-container {
+            display: none;
+            margin-top: 20px;
+        }
+        #next, #restart, #play-again {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: blue;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <audio id="bg-music" src="sound.mp3" loop></audio>
+    <img id="game-image" src="Front_Cover.jpg">
+    <div id="input-container">
+        <input type="number" id="number-input" min="0" max="224">
+        <button onclick="checkInput()">Enter</button>
+    </div>
+    <button id="next" onclick="nextLevel()">Next</button>
+    <button id="restart" onclick="startGame()">Re-start</button>
+    <button id="play-again" onclick="resetGame()">Play-again</button>
+
+    <script>
+        let currentLevel = 0;
+        let imageElement = document.getElementById("game-image");
+        let inputContainer = document.getElementById("input-container");
+        let numberInput = document.getElementById("number-input");
+        let nextButton = document.getElementById("next");
+        let restartButton = document.getElementById("restart");
+        let playAgainButton = document.getElementById("play-again");
+        let bgMusic = document.getElementById("bg-music");
+        
+        imageElement.addEventListener("click", startGame, { once: true });
+
+        function startGame() {
+            bgMusic.play();
+            currentLevel = 0;
+            imageElement.src = "Front_Cover.jpg";
+            imageElement.style.display = "block";
+            inputContainer.style.display = "none";
+            nextButton.style.display = "none";
+            restartButton.style.display = "none";
+            playAgainButton.style.display = "none";
+            showIntro();
+        }
+
+        function resetGame() {
+            location.reload();
+        }
+
+        function showIntro() {
+            let images = ["Front_01.jpg", "Front_02.jpg"];
+            let count = 0;
+            let interval = setInterval(() => {
+                imageElement.src = images[count % 2];
+                count++;
+                if (count >= 4) {
+                    clearInterval(interval);
+                    startLevel(1);
+                }
+            }, 500);
+        }
+
+        function startLevel(level) {
+            currentLevel = level;
+            imageElement.src = `Level0${level}.jpg`;
+            inputContainer.style.display = "block";
+        }
+
+        function checkInput() {
+            let value = parseInt(numberInput.value);
+            let validRanges = [
+                [104, 224],
+                [60, 104],
+                [35, 60]
+            ];
+
+            if (value >= validRanges[currentLevel - 1][0] && value <= validRanges[currentLevel - 1][1]) {
+                passLevel();
+            } else {
+                loseGame();
+            }
+        }
+
+        function passLevel() {
+            inputContainer.style.display = "none";
+            let images = [`Level0${currentLevel}_pass_01.jpg`, `Level0${currentLevel}_pass_02.jpg`];
+            let count = 0;
+            let interval = setInterval(() => {
+                imageElement.src = images[count % 2];
+                count++;
+                if (count >= 4) {
+                    clearInterval(interval);
+                    if (currentLevel < 3) {
+                        nextButton.style.display = "block";
+                    } else {
+                        showFinalPass();
+                    }
+                }
+            }, 500);
+        }
+
+        function nextLevel() {
+            nextButton.style.display = "none";
+            startLevel(currentLevel + 1);
+        }
+
+        function loseGame() {
+            inputContainer.style.display = "none";
+            let images = ["Lose01.jpg", "Lose_02.jpg", "Lose_03.jpg"];
+            let count = 0;
+            let interval = setInterval(() => {
+                imageElement.src = images[count];
+                count++;
+                if (count >= images.length) {
+                    clearInterval(interval);
+                    restartButton.style.display = "block";
+                }
+            }, 1000);
+        }
+
+        function showFinalPass() {
+            let images = ["Pass01.jpg", "Pass02.jpg"];
+            let count = 0;
+            let interval = setInterval(() => {
+                imageElement.src = images[count % 2];
+                count++;
+            }, 500);
+            playAgainButton.style.display = "block";
+        }
+    </script>
+</body>
+</html>
